@@ -25,7 +25,17 @@ namespace Collection2Model.Mapper.Test
             Assert.AreEqual<String>("STRING", ret.StrPropUpper);
             Assert.AreEqual<string>("string", ret.StrPropLower);
             Assert.AreEqual<double>(0.0, ret.DoubleProp);
+        }
 
+        [TestMethod]
+        [ExpectedException(typeof(FormatException))]
+        public void Throw_exception_with_str_to_int_convert()
+        {
+            var c = new NameValueCollection();
+            c.Add("IntProp", "invalid!");
+
+            var ret = Collection2Model.Mapper.Mapper.MappingFromNameValueCollection<TestModel>(c);
+            Assert.Fail();
         }
     }
     public class TestModel
