@@ -7,7 +7,7 @@
     <ProjectGuid>{1F1612F6-08EC-4515-863D-74A61721B6E9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NemeValueCollectionMapper</RootNamespace>
+    <RootNamespace>Collection2Model.Mapper</RootNamespace>
     <AssemblyName>NemeValueCollectionMapper</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

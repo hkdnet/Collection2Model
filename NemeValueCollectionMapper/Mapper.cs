@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NemeValueCollectionMapper
+namespace Collection2Model.Mapper
 {
     public static class Mapper
     {
-        public static T Mapping<T>(System.Collections.Specialized.NameValueCollection c)
+        public static T MappingFromNameValueCollection<T>(System.Collections.Specialized.NameValueCollection c)
             where T : class, new()
         {
             var ret = new T();

@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NameValueCollectionMapper;
+using Collection2Model.Mapper;
 using System.Collections.Specialized;
 
-namespace NameValueCollectionMapper.Test
+namespace Collection2Model.Mapper.Test
 {
     [TestClass]
     public class MapperTest
@@ -18,7 +18,7 @@ namespace NameValueCollectionMapper.Test
             c.Add("StrPropLower", "string");
             c.Add("DoubleProp", "0.0");
 
-            var ret = NemeValueCollectionMapper.Mapper.Mapping<TestModel>(c);
+            var ret = Collection2Model.Mapper.Mapper.MappingFromNameValueCollection<TestModel>(c);
 
             Assert.AreEqual<int>(1, ret.IntProp);
             Assert.AreEqual<bool>(true, ret.BoolProp);
