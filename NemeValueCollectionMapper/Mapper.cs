@@ -12,19 +12,8 @@ namespace Collection2Model.Mapper
         public static T MappingFromNameValueCollection<T>(NameValueCollection c)
             where T : class, new()
         {
-            var ret = new T();
-            var properties = typeof(T).GetProperties();
-            foreach (var p in properties)
-            {
-                var strVal = c[p.Name];
-                if (!p.CanWrite || strVal == null)
-                {
-                    continue;
-                }
-                var val = Convert.ChangeType(strVal, p.PropertyType);
-                p.SetValue(ret, val, null);
-            }
-            return ret;
+            var ignoring = new List<string>();
+            return MappingFromNameValueCollection<T>(c, ignoring);
         }
         public static T MappingFromNameValueCollection<T>(NameValueCollection c, List<String> ignoring)
             where T : class, new()
