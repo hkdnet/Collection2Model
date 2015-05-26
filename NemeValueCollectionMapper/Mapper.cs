@@ -20,10 +20,6 @@ namespace Collection2Model.Mapper
                 {
                     continue;
                 }
-                if (p.PropertyType.FullName.Equals("System.String"))
-                {
-                    p.SetValue(ret, strVal, null);
-                }
                 var val = Convert.ChangeType(strVal, p.PropertyType);
                 p.SetValue(ret, val, null);
             }
