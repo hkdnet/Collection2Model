@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Collection2Model.Mapper;
 using System.Collections.Specialized;
-using Collection2Model.Mapper;
 
 namespace Collection2Model.Mapper.Test
 {
