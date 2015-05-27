@@ -67,6 +67,14 @@ namespace Collection2Model.Mapper.Test
             var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
             Assert.AreEqual<int>(0, ret.GetPrivateIntProp());
         }
+        [TestMethod]
+        public void Ignore_by_IgnorePropertyAttribute()
+        {
+            var c = new NameValueCollection();
+            c.Add("IgnorePropByAttr", "1");
+            var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
+            Assert.AreEqual<int>(0, ret.IgnorePropByAttr);
+        }
     }
     public class TestModel
     {
@@ -82,5 +90,7 @@ namespace Collection2Model.Mapper.Test
         {
             return PrivateIntProp;
         }
+        [IgnorePropertyAttribute]
+        public int IgnorePropByAttr { get; set; }
     }
 }
