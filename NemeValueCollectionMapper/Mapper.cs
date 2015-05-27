@@ -18,23 +18,29 @@ namespace Collection2Model.Mapper
             where T : class, new()
         {
             var ret = new T();
-            var properties = typeof(T).GetProperties();
+            var properties = from p in GetTargetProps(typeof(T))
+                             where c[p.Name] != null
+                                && !ignoring.Contains(p.Name, StringComparer.OrdinalIgnoreCase)
+                             select p;
             foreach (var p in properties)
             {
-                if (HasIgnoreAttribute(p))
-                {
-                    continue;
-                }
                 var strVal = c[p.Name];
-                var isIgnored = ignoring.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
-                if (!p.CanWrite || strVal == null || isIgnored)
-                {
-                    continue;
-                }
                 var val = Convert.ChangeType(strVal, p.PropertyType);
                 p.SetValue(ret, val, null);
             }
             return ret;
+        }
+        /// <summary>
+        /// return properties to be mapped based on static analysis
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        private static IEnumerable<PropertyInfo> GetTargetProps(Type t)
+        {
+            return from p in t.GetProperties()
+                   where !HasIgnoreAttribute(p)
+                      && p.CanWrite
+                   select p;
         }
         private static bool HasIgnoreAttribute(PropertyInfo p)
         {

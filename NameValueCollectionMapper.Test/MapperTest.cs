@@ -75,6 +75,14 @@ namespace Collection2Model.Mapper.Test
             var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
             Assert.AreEqual<int>(0, ret.IgnorePropByAttr);
         }
+        [TestMethod]
+        public void Nullvalue_set_null()
+        {
+            var c = new NameValueCollection();
+            c.Add("StrPropUpper", null);
+            var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
+            Assert.AreEqual<String>(null, ret.StrPropUpper);
+        }
     }
     public class TestModel
     {
