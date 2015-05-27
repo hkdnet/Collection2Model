@@ -50,6 +50,23 @@ namespace Collection2Model.Mapper.Test
             Assert.AreEqual<int>(0, ret.IntProp);
             Assert.AreEqual<int>(1, ret.IntProp2);
         }
+        [TestMethod]
+        public void Ignore_field()
+        {
+            var c = new NameValueCollection();
+            c.Add("intField", "1");
+            var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
+            Assert.AreEqual<int>(0, ret.intField);
+        }
+
+        [TestMethod]
+        public void Ignore_private_prop()
+        {
+            var c = new NameValueCollection();
+            c.Add("PrivateIntProp", "1");
+            var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
+            Assert.AreEqual<int>(0, ret.GetPrivateIntProp());
+        }
     }
     public class TestModel
     {
@@ -59,5 +76,11 @@ namespace Collection2Model.Mapper.Test
         public String StrPropUpper { get; set; }
         public string StrPropLower { get; set; }
         public double DoubleProp { get; set; }
+        public int intField;
+        private int PrivateIntProp { get; set; }
+        public int GetPrivateIntProp()
+        {
+            return PrivateIntProp;
+        }
     }
 }
