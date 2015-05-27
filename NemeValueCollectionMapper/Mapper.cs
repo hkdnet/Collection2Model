@@ -39,17 +39,8 @@ namespace Collection2Model.Mapper
         private static bool HasIgnoreAttribute(PropertyInfo p)
         {
             var attrs = Attribute.GetCustomAttributes(p, typeof(IgnorePropertyAttribute));
-            var hasIgnoreAttribute = false;
-            foreach (var a in attrs)
-            {
-                var attr = a as IgnorePropertyAttribute;
-                if (attr != null)
-                {
-                    hasIgnoreAttribute = true;
-                    break;
-                }
-            }
-            return hasIgnoreAttribute;
+            var attr = attrs.FirstOrDefault() as IgnorePropertyAttribute;
+            return attr != null;
         }
     }
 
