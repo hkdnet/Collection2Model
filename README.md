@@ -26,10 +26,12 @@ var ret = Mapper.MappingFromNameValueCollection<HogeViewModel>(Request.QueryStri
 #### 限界
 
 `Reflection`しつつ`Covnert.ChangeType`で殴っているのでConvertできない型には変換できません。  
-いったん`List<String>`でプロパティ名を指定して変換対象外にしています。
+~~いったん`List<String>`でプロパティ名を指定して変換対象外にしています。~~  
+`Attribute`で指定するようになりました
 ```csharp
 class HogeViewModel
 {
+  [IgnoreProperty]
   public int Ignored { get; set; }
 }
 
