@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Specialized;
 using System.Reflection;
+using System.ComponentModel.DataAnnotations;
 
 namespace Collection2Model.Mapper
 {
@@ -18,38 +19,46 @@ namespace Collection2Model.Mapper
             where T : class, new()
         {
             var ret = new T();
-            var properties = typeof(T).GetProperties();
+            var properties = from p in GetTargetProps(typeof(T))
+                             where c[p.Name] != null
+                                && !ignoring.Contains(p.Name, StringComparer.OrdinalIgnoreCase)
+                             select p;
             foreach (var p in properties)
             {
-                if (HasIgnoreAttribute(p))
-                {
-                    continue;
-                }
                 var strVal = c[p.Name];
-                var isIgnored = ignoring.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
-                if (!p.CanWrite || strVal == null || isIgnored)
-                {
-                    continue;
-                }
                 var val = Convert.ChangeType(strVal, p.PropertyType);
                 p.SetValue(ret, val, null);
+                GetValidResult(p, val);
             }
             return ret;
+        }
+        /// <summary>
+        /// return properties to be mapped based on static analysis
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        private static IEnumerable<PropertyInfo> GetTargetProps(Type t)
+        {
+            return from p in t.GetProperties()
+                   where !HasIgnoreAttribute(p)
+                      && p.CanWrite
+                   select p;
         }
         private static bool HasIgnoreAttribute(PropertyInfo p)
         {
             var attrs = Attribute.GetCustomAttributes(p, typeof(IgnorePropertyAttribute));
-            var hasIgnoreAttribute = false;
-            foreach (var a in attrs)
+            var attr = attrs.FirstOrDefault() as IgnorePropertyAttribute;
+            return attr != null;
+        }
+        private static void GetValidResult(PropertyInfo p, Object val)
+        {
+            var attrs = Attribute.GetCustomAttributes(p, typeof(ValidationAttribute));
+            var attr = attrs.FirstOrDefault() as ValidationAttribute;
+            if (attr == null)
             {
-                var attr = a as IgnorePropertyAttribute;
-                if (attr != null)
-                {
-                    hasIgnoreAttribute = true;
-                    break;
-                }
+                return;
             }
-            return hasIgnoreAttribute;
+            attr.Validate(val, attr.ErrorMessage);
         }
     }
 

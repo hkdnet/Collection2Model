@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Specialized;
+using System.ComponentModel.DataAnnotations;
 
 namespace Collection2Model.Mapper.Test
 {
@@ -75,6 +76,77 @@ namespace Collection2Model.Mapper.Test
             var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
             Assert.AreEqual<int>(0, ret.IgnorePropByAttr);
         }
+        [TestMethod]
+        public void Nullvalue_set_null()
+        {
+            var c = new NameValueCollection();
+            c.Add("StrPropUpper", null);
+            var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
+            Assert.AreEqual<String>(null, ret.StrPropUpper);
+        }
+
+        [TestMethod]
+        public void StringLengthAttribute_validate_maxlength()
+        {
+            try
+            {
+                var c = new NameValueCollection();
+                c.Add("Length8OrLess", "123456789");
+                var ret = Mapper.MappingFromNameValueCollection<StringLengthAttributeTestModel>(c);
+                Assert.Fail();
+            }
+            catch (ValidationException e)
+            {
+                StringAssert.Equals(e.Message, "It's too long.");
+            }
+        }
+        [TestMethod]
+        public void StringLengthAttribute_validate_minlength()
+        {
+            try
+            {
+                var c = new NameValueCollection();
+                c.Add("Length1_8", "");
+                var ret = Mapper.MappingFromNameValueCollection<StringLengthAttributeTestModel>(c);
+                Assert.Fail();
+            }
+            catch (ValidationException e)
+            {
+                StringAssert.Equals(e.Message, "Length1_8 should be 1char or more and less than 9chars");
+            }
+        }
+        [TestMethod]
+        public void StringLengthAttribute_with_valid_value_doesnt_throw_exception()
+        {
+            var c = new NameValueCollection();
+            c.Add("Length8OrLess", "");
+            c.Add("Length1_8", "1");
+            var ret = Mapper.MappingFromNameValueCollection<StringLengthAttributeTestModel>(c);
+        }
+        [TestMethod]
+        public void Value_lower_than_range_causes_excetion()
+        {
+            var c = new NameValueCollection();
+            c.Add("Plus", "1000");
+            try
+            {
+                var ret = Mapper.MappingFromNameValueCollection<RangeAttributeTestModel>(c);
+                Assert.Fail();
+            }
+            catch (ValidationException e)
+            {
+                StringAssert.Equals(e.Message, "Value should be between 1 and 100");
+            }
+        }
+        [TestMethod]
+        [ExpectedException(typeof(FormatException))]
+        public void when_format_and_validation_error_too_throw_format_exception()
+        {
+            var c = new NameValueCollection();
+            c.Add("Plus", "-1.0");
+            var ret = Mapper.MappingFromNameValueCollection<RangeAttributeTestModel>(c);
+            Assert.Fail();
+        }
     }
     public class TestModel
     {
@@ -92,5 +164,19 @@ namespace Collection2Model.Mapper.Test
         }
         [IgnorePropertyAttribute]
         public int IgnorePropByAttr { get; set; }
+    }
+    public class StringLengthAttributeTestModel
+    {
+        const string message = "It's too long.";
+        [StringLength(8, ErrorMessage = message)]
+        public string Length8OrLess { get; set; }
+
+        [StringLength(8, MinimumLength = 1, ErrorMessage = "Length1_8 should be 1char or more and less than 9chars")]
+        public string Length1_8 { get; set; }
+    }
+    public class RangeAttributeTestModel
+    {
+        [Range(1, 100, ErrorMessage = "Value should be between 1 and 100")]
+        public int Plus { get; set; }
     }
 }
