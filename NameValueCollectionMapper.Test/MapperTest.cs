@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Specialized;
+using System.ComponentModel.DataAnnotations;
 
 namespace Collection2Model.Mapper.Test
 {
@@ -83,6 +84,25 @@ namespace Collection2Model.Mapper.Test
             var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
             Assert.AreEqual<String>(null, ret.StrPropUpper);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ValidationException))]
+        public void StringLengthAttribute_validate_maxlength()
+        {
+            var c = new NameValueCollection();
+            c.Add("Length8OrLess", "123456789");
+            var ret = Mapper.MappingFromNameValueCollection<StringLengthAttributeTestModel>(c);
+            Assert.Fail();
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ValidationException))]
+        public void StringLengthAttribute_validate_minlength()
+        {
+            var c = new NameValueCollection();
+            c.Add("Length1_8", "");
+            var ret = Mapper.MappingFromNameValueCollection<StringLengthAttributeTestModel>(c);
+            Assert.Fail();
+        }
     }
     public class TestModel
     {
@@ -100,5 +120,13 @@ namespace Collection2Model.Mapper.Test
         }
         [IgnorePropertyAttribute]
         public int IgnorePropByAttr { get; set; }
+    }
+    public class StringLengthAttributeTestModel
+    {
+        [StringLength(8, ErrorMessage="TooLong")]
+        public string Length8OrLess { get; set; }
+
+        [StringLength(8,MinimumLength=1, ErrorMessage = "Length1_8 should be 1char or more and less than 9chars ")]
+        public string Length1_8 { get; set; }
     }
 }

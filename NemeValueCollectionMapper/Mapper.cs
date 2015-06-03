@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Specialized;
 using System.Reflection;
+using System.ComponentModel.DataAnnotations;
 
 namespace Collection2Model.Mapper
 {
@@ -26,6 +27,7 @@ namespace Collection2Model.Mapper
             {
                 var strVal = c[p.Name];
                 var val = Convert.ChangeType(strVal, p.PropertyType);
+                GetValidResult(p, val);
                 p.SetValue(ret, val, null);
             }
             return ret;
@@ -47,6 +49,16 @@ namespace Collection2Model.Mapper
             var attrs = Attribute.GetCustomAttributes(p, typeof(IgnorePropertyAttribute));
             var attr = attrs.FirstOrDefault() as IgnorePropertyAttribute;
             return attr != null;
+        }
+        private static void GetValidResult(PropertyInfo p, Object val)
+        {
+            var attrs = Attribute.GetCustomAttributes(p, typeof(ValidationAttribute));
+            var attr = attrs.FirstOrDefault() as ValidationAttribute;
+            if (attr == null)
+            {
+                return;
+            }
+            attr.Validate(val, attr.ErrorMessage);
         }
     }
 
