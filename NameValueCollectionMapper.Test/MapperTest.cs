@@ -86,22 +86,42 @@ namespace Collection2Model.Mapper.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ValidationException))]
         public void StringLengthAttribute_validate_maxlength()
         {
-            var c = new NameValueCollection();
-            c.Add("Length8OrLess", "123456789");
-            var ret = Mapper.MappingFromNameValueCollection<StringLengthAttributeTestModel>(c);
-            Assert.Fail();
+            try
+            {
+                var c = new NameValueCollection();
+                c.Add("Length8OrLess", "123456789");
+                var ret = Mapper.MappingFromNameValueCollection<StringLengthAttributeTestModel>(c);
+                Assert.Fail();
+            }
+            catch (ValidationException e)
+            {
+                StringAssert.Equals(e.Message, "It's too long.");
+            }
         }
         [TestMethod]
-        [ExpectedException(typeof(ValidationException))]
         public void StringLengthAttribute_validate_minlength()
         {
+            try
+            {
+                var c = new NameValueCollection();
+                c.Add("Length1_8", "");
+                var ret = Mapper.MappingFromNameValueCollection<StringLengthAttributeTestModel>(c);
+                Assert.Fail();
+            }
+            catch (ValidationException e)
+            {
+                StringAssert.Equals(e.Message, "Length1_8 should be 1char or more and less than 9chars");
+            }
+        }
+        [TestMethod]
+        public void StringLengthAttribute_with_valid_value_doesnt_throw_exception()
+        {
             var c = new NameValueCollection();
-            c.Add("Length1_8", "");
+            c.Add("Length8OrLess", "");
+            c.Add("Length1_8", "1");
             var ret = Mapper.MappingFromNameValueCollection<StringLengthAttributeTestModel>(c);
-            Assert.Fail();
         }
     }
     public class TestModel
@@ -123,10 +143,11 @@ namespace Collection2Model.Mapper.Test
     }
     public class StringLengthAttributeTestModel
     {
-        [StringLength(8, ErrorMessage="TooLong")]
+        const string message = "It's too long.";
+        [StringLength(8, ErrorMessage = message)]
         public string Length8OrLess { get; set; }
 
-        [StringLength(8,MinimumLength=1, ErrorMessage = "Length1_8 should be 1char or more and less than 9chars ")]
+        [StringLength(8, MinimumLength = 1, ErrorMessage = "Length1_8 should be 1char or more and less than 9chars")]
         public string Length1_8 { get; set; }
     }
 }
