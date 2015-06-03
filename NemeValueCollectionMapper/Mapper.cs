@@ -27,8 +27,8 @@ namespace Collection2Model.Mapper
             {
                 var strVal = c[p.Name];
                 var val = Convert.ChangeType(strVal, p.PropertyType);
-                GetValidResult(p, val);
                 p.SetValue(ret, val, null);
+                GetValidResult(p, val);
             }
             return ret;
         }
