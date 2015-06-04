@@ -12,16 +12,9 @@ namespace Collection2Model.Mapper
         public static T MappingFromNameValueCollection<T>(NameValueCollection c)
             where T : class, new()
         {
-            var ignoring = new List<string>();
-            return MappingFromNameValueCollection<T>(c, ignoring);
-        }
-        public static T MappingFromNameValueCollection<T>(NameValueCollection c, List<String> ignoring)
-            where T : class, new()
-        {
             var ret = new T();
             var properties = from p in GetTargetProps(typeof(T))
                              where c[p.Name] != null
-                                && !ignoring.Contains(p.Name, StringComparer.OrdinalIgnoreCase)
                              select p;
             foreach (var p in properties)
             {

@@ -39,19 +39,6 @@ namespace Collection2Model.Mapper.Test
             Assert.Fail();
         }
         [TestMethod]
-        public void Ignore_listed_prop()
-        {
-            var c = new NameValueCollection();
-            c.Add("IntProp", "1");
-            c.Add("IntProp2", "1");
-            var ignoring = new List<String>();
-            ignoring.Add("IntProp");
-
-            var ret = Mapper.MappingFromNameValueCollection<TestModel>(c, ignoring);
-            Assert.AreEqual<int>(0, ret.IntProp);
-            Assert.AreEqual<int>(1, ret.IntProp2);
-        }
-        [TestMethod]
         public void Ignore_field()
         {
             var c = new NameValueCollection();
