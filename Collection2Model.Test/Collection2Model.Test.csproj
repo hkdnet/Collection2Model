@@ -55,7 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NemeValueCollectionMapper\Collection2Model.csproj">
+    <ProjectReference Include="..\Collection2Model\Collection2Model.csproj">
       <Project>{1f1612f6-08ec-4515-863d-74a61721b6e9}</Project>
       <Name>Collection2Model</Name>
     </ProjectReference>

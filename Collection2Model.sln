@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collection2Model", "NemeValueCollectionMapper\Collection2Model.csproj", "{1F1612F6-08EC-4515-863D-74A61721B6E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collection2Model", "Collection2Model\Collection2Model.csproj", "{1F1612F6-08EC-4515-863D-74A61721B6E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collection2Model.Test", "NameValueCollectionMapper.Test\Collection2Model.Test.csproj", "{FD2F8514-E66A-437C-B848-B57196DAE43D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collection2Model.Test", "Collection2Model.Test\Collection2Model.Test.csproj", "{FD2F8514-E66A-437C-B848-B57196DAE43D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
