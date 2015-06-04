@@ -12,26 +12,44 @@ namespace Collection2Model.Mapper
         public static T MappingFromNameValueCollection<T>(NameValueCollection c)
             where T : class, new()
         {
-            var ignoring = new List<string>();
-            return MappingFromNameValueCollection<T>(c, ignoring);
-        }
-        public static T MappingFromNameValueCollection<T>(NameValueCollection c, List<String> ignoring)
-            where T : class, new()
-        {
             var ret = new T();
             var properties = from p in GetTargetProps(typeof(T))
-                             where c[p.Name] != null
-                                && !ignoring.Contains(p.Name, StringComparer.OrdinalIgnoreCase)
                              select p;
             foreach (var p in properties)
             {
-                var strVal = c[p.Name];
-                var val = Convert.ChangeType(strVal, p.PropertyType);
-                p.SetValue(ret, val, null);
-                GetValidResult(p, val);
+                ret = Validate<T>(ret, p, c[p.Name]);
             }
             return ret;
         }
+
+
+        private static T Validate<T>(T ret, PropertyInfo p, string strVal)
+            where T : class, new()
+        {
+            // is required?
+            RequireValidate(p, strVal);
+            if (strVal == null)
+            {
+                return ret;
+            }
+
+            // format ok?
+            var val = Convert.ChangeType(strVal, p.PropertyType);
+            p.SetValue(ret, val, null);
+
+            // valid to meta-data?
+            ValueValidate(p, val);
+            return ret;
+        }
+
+
+        private static void RequireValidate(PropertyInfo p, string strVal)
+        {
+            var attr = (RequiredAttribute)Attribute.GetCustomAttributes(p, typeof(RequiredAttribute)).FirstOrDefault();
+            if (attr != null)
+                attr.Validate(strVal, attr.ErrorMessage);
+        }
+
         /// <summary>
         /// return properties to be mapped based on static analysis
         /// </summary>
@@ -50,17 +68,14 @@ namespace Collection2Model.Mapper
             var attr = attrs.FirstOrDefault() as IgnorePropertyAttribute;
             return attr != null;
         }
-        private static void GetValidResult(PropertyInfo p, Object val)
+        private static void ValueValidate(PropertyInfo p, Object val)
         {
-            var attrs = Attribute.GetCustomAttributes(p, typeof(ValidationAttribute));
-            var attr = attrs.FirstOrDefault() as ValidationAttribute;
-            if (attr == null)
+            var attrs = from attr in Attribute.GetCustomAttributes(p, typeof(ValidationAttribute))
+                        select (ValidationAttribute)attr;
+            foreach (var attr in attrs)
             {
-                return;
+                attr.Validate(val, attr.ErrorMessage);
             }
-            attr.Validate(val, attr.ErrorMessage);
         }
     }
-
-
 }
