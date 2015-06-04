@@ -134,6 +134,46 @@ namespace Collection2Model.Mapper.Test
             var ret = Mapper.MappingFromNameValueCollection<RangeAttributeTestModel>(c);
             Assert.Fail();
         }
+
+        [TestMethod]
+        public void with_required_prop_doesnt_throw_exception()
+        {
+            var c = new NameValueCollection();
+            c.Add("RequiredProp", "1");
+            var ret = Mapper.MappingFromNameValueCollection<RequiredAttributeTeestModel>(c);
+            Assert.AreEqual<string>("1", ret.RequiredProp);
+        }
+
+        [TestMethod]
+        public void without_required_prop_throws_exception()
+        {
+            var c = new NameValueCollection();
+            c.Add("NotRequiredProp", "1");
+            try
+            {
+                var ret = Mapper.MappingFromNameValueCollection<RequiredAttributeTeestModel>(c);
+                Assert.Fail();
+            }
+            catch (ValidationException e)
+            {
+                StringAssert.Equals("RequiredProp is required!", e.Message);
+            }
+        }
+        [TestMethod]
+        public void empty_required_prop_throws_exception()
+        {
+            var c = new NameValueCollection();
+            c.Add("RequiredProp", "");
+            try
+            {
+                var ret = Mapper.MappingFromNameValueCollection<RequiredAttributeTeestModel>(c);
+                Assert.Fail();
+            }
+            catch (ValidationException e)
+            {
+                StringAssert.Equals("RequiredProp is required!", e.Message);
+            }
+        }
     }
     public class TestModel
     {
@@ -149,7 +189,7 @@ namespace Collection2Model.Mapper.Test
         {
             return PrivateIntProp;
         }
-        [IgnorePropertyAttribute]
+        [IgnoreProperty]
         public int IgnorePropByAttr { get; set; }
     }
     public class StringLengthAttributeTestModel
@@ -165,5 +205,11 @@ namespace Collection2Model.Mapper.Test
     {
         [Range(1, 100, ErrorMessage = "Value should be between 1 and 100")]
         public int Plus { get; set; }
+    }
+    public class RequiredAttributeTeestModel
+    {
+        [Required(ErrorMessage = "RequiredProp is required!")]
+        public String RequiredProp { get; set; }
+        public int NotRequiredProp { get; set; }
     }
 }
