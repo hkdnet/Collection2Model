@@ -14,12 +14,12 @@ class HogeViewModel
 {
   public int IntProp { get; set; }
   public bool BoolProp { get; set; }
-  public String StrPropUpper { get; set; }
+  public String StrProp { get; set; }
   // etc...
 }
 
 // sample GET request
-// http://example.com?IntProp=1&StrPropUser=fuga&BoolProp=true
+// http://example.com?IntProp=1&StrProp=fuga&BoolProp=true
 var ret = Mapper.MappingFromNameValueCollection<HogeViewModel>(Request.QueryString);
 
 // or POST request
@@ -30,8 +30,8 @@ var ret = Mapper.MappingFromNameValueCollection<HogeViewModel>(Request.Form);
 
 * Convertできない型には変換できません。  
   - `Reflection`しつつ`Covnert.ChangeType`で殴っているので。
-  - ~~`List<String>`でプロパティ名を指定して変換対象外にできます~~  ← できなくなりました
-  - `IgnorePropertyAttribute`で無視したいプロパティを修飾するようになりました。
+  - ~~`List<String>`でプロパティ名を指定して変換対象外にできます~~  ← できなくなりました。
+  - 無視したいプロパティは`IgnorePropertyAttribute`で修飾するようになりました。
 * `System.ComponentModel.DataAnnotations.ValidationAttribute`にしたがってバリデーションできます。
   - `StringLength`
   - `Range`
