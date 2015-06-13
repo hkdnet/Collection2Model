@@ -23,7 +23,7 @@ namespace Collection2Model.Mapper
             {
                 try
                 {
-                    ret = Validate<T>(ret, p, c[p.Name]);
+                    Validate<T>(ret, p, c[p.Name]);
                 }
                 catch (ValidationException e)
                 {
@@ -40,26 +40,26 @@ namespace Collection2Model.Mapper
             return ret;
         }
 
-
-        private static T Validate<T>(T ret, PropertyInfo p, string strVal)
+        private static void Validate<T>(T ret, PropertyInfo p, string strVal)
             where T : class, new()
         {
             // is required?
             RequireValidate(p, strVal);
-            if (strVal == null)
+            if (strVal == null
+                || (p.PropertyType != typeof(string) && strVal == string.Empty))
             {
-                return ret;
+                ValueValidate(p, p.GetValue(ret));
+                return;
             }
-
-            // format ok?
-            var val = Convert.ChangeType(strVal, p.PropertyType);
-            p.SetValue(ret, val, null);
-
-            // valid to meta-data?
-            ValueValidate(p, val);
-            return ret;
+            else
+            {
+                // format ok?
+                var val = Convert.ChangeType(strVal, p.PropertyType);
+                p.SetValue(ret, val, null);
+                // valid to meta-data?
+                ValueValidate(p, val);
+            }
         }
-
 
         private static void RequireValidate(PropertyInfo p, string strVal)
         {
@@ -89,6 +89,7 @@ namespace Collection2Model.Mapper
         private static void ValueValidate(PropertyInfo p, Object val)
         {
             var attrs = from attr in Attribute.GetCustomAttributes(p, typeof(ValidationAttribute))
+                        where attr.GetType() != typeof(RequiredAttribute)
                         select (ValidationAttribute)attr;
             foreach (var attr in attrs)
             {

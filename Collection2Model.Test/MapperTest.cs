@@ -30,6 +30,33 @@ namespace Collection2Model.Mapper.Test
         }
 
         [TestMethod]
+        public void Null_should_be_mapped_to_default_value()
+        {
+            var c = new NameValueCollection();
+            c.Add("IntProp", null);
+            c.Add("BoolProp", null);
+            c.Add("DoubleProp", null);
+            var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
+
+            Assert.AreEqual<int>(0, ret.IntProp);
+            Assert.AreEqual<bool>(false, ret.BoolProp);
+            Assert.AreEqual<double>(0.0, ret.DoubleProp);
+        }
+        [TestMethod]
+        public void Empty_should_be_mapped_to_default_value()
+        {
+            var c = new NameValueCollection();
+            c.Add("IntProp", "");
+            c.Add("BoolProp", "");
+            c.Add("DoubleProp", "");
+            var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
+
+            Assert.AreEqual<int>(0, ret.IntProp);
+            Assert.AreEqual<bool>(false, ret.BoolProp);
+            Assert.AreEqual<double>(0.0, ret.DoubleProp);
+        }
+
+        [TestMethod]
         public void Throw_exception_with_str_to_int_convert()
         {
             var c = new NameValueCollection();
@@ -230,6 +257,44 @@ namespace Collection2Model.Mapper.Test
                 {
                     return typeof(ValidationException) == ex.GetType() && ex.Message == "I should be 1 or 2.";
                 }));
+            }
+        }
+        [TestMethod]
+        public void ThrowExceptionWithDefaultValueOfNull()
+        {
+            var c = new NameValueCollection();
+            c.Add("S", "No Error");
+            c.Add("I", null);
+            try
+            {
+                var ret = Mapper.MappingFromNameValueCollection<ThrowMultipleExceptionTestModel>(c);
+                Assert.Fail();
+            }
+            catch (AggregateException e)
+            {
+                Assert.AreEqual<int>(1, e.InnerExceptions.Count);
+                var ex = e.InnerExceptions[0];
+                Assert.AreEqual<Type>(typeof(ValidationException), ex.GetType());
+                StringAssert.Equals("I should be 1 or 2.", ex.Message);
+            }
+        }
+        [TestMethod]
+        public void ThrowExceptionWithDefaultValueOfEmpty()
+        {
+            var c = new NameValueCollection();
+            c.Add("S", "No Error");
+            c.Add("I", "");
+            try
+            {
+                var ret = Mapper.MappingFromNameValueCollection<ThrowMultipleExceptionTestModel>(c);
+                Assert.Fail();
+            }
+            catch (AggregateException e)
+            {
+                Assert.AreEqual<int>(1, e.InnerExceptions.Count);
+                var ex = e.InnerExceptions[0];
+                Assert.AreEqual<Type>(typeof(ValidationException), ex.GetType());
+                StringAssert.Equals("I should be 1 or 2.", ex.Message);
             }
         }
     }
