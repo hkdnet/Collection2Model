@@ -13,12 +13,30 @@ namespace Collection2Model.Mapper
             where T : class, new()
         {
             var ret = new T();
+            if (c == null)
+                throw new ArgumentNullException("Collection can't be null.");
+
             var properties = from p in GetTargetProps(typeof(T))
                              select p;
+            var exceptions = new List<Exception>();
             foreach (var p in properties)
             {
-                ret = Validate<T>(ret, p, c[p.Name]);
+                try
+                {
+                    ret = Validate<T>(ret, p, c[p.Name]);
+                }
+                catch (ValidationException e)
+                {
+                    exceptions.Add(e);
+                }
+                catch (FormatException e)
+                {
+                    exceptions.Add(e);
+                }
             }
+            if (exceptions.Count > 0)
+                throw new AggregateException(exceptions);
+
             return ret;
         }
 

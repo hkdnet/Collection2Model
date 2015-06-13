@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace Collection2Model.Mapper.Test
 {
@@ -29,14 +30,21 @@ namespace Collection2Model.Mapper.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(FormatException))]
         public void Throw_exception_with_str_to_int_convert()
         {
             var c = new NameValueCollection();
             c.Add("IntProp", "invalid!");
-
-            var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
-            Assert.Fail();
+            try
+            {
+                var ret = Mapper.MappingFromNameValueCollection<TestModel>(c);
+                Assert.Fail();
+            }
+            catch (AggregateException e)
+            {
+                Assert.AreEqual<int>(1, e.InnerExceptions.Count);
+                var ex = e.InnerExceptions[0];
+                Assert.AreEqual<Type>(typeof(FormatException), ex.GetType());
+            }
         }
         [TestMethod]
         public void Ignore_field()
@@ -82,9 +90,11 @@ namespace Collection2Model.Mapper.Test
                 var ret = Mapper.MappingFromNameValueCollection<StringLengthAttributeTestModel>(c);
                 Assert.Fail();
             }
-            catch (ValidationException e)
+            catch (AggregateException e)
             {
-                StringAssert.Equals(e.Message, "It's too long.");
+                Assert.AreEqual<int>(1, e.InnerExceptions.Count);
+                var ex = e.InnerExceptions[0];
+                StringAssert.Equals("It's too long.", ex.Message);
             }
         }
         [TestMethod]
@@ -97,9 +107,11 @@ namespace Collection2Model.Mapper.Test
                 var ret = Mapper.MappingFromNameValueCollection<StringLengthAttributeTestModel>(c);
                 Assert.Fail();
             }
-            catch (ValidationException e)
+            catch (AggregateException e)
             {
-                StringAssert.Equals(e.Message, "Length1_8 should be 1char or more and less than 9chars");
+                Assert.AreEqual<int>(1, e.InnerExceptions.Count);
+                var ex = e.InnerExceptions[0];
+                StringAssert.Equals("Length1_8 should be 1char or more and less than 9chars", ex.Message);
             }
         }
         [TestMethod]
@@ -120,19 +132,29 @@ namespace Collection2Model.Mapper.Test
                 var ret = Mapper.MappingFromNameValueCollection<RangeAttributeTestModel>(c);
                 Assert.Fail();
             }
-            catch (ValidationException e)
+            catch (AggregateException e)
             {
-                StringAssert.Equals(e.Message, "Value should be between 1 and 100");
+                Assert.AreEqual<int>(1, e.InnerExceptions.Count);
+                var ex = e.InnerExceptions[0];
+                StringAssert.Equals("Value should be between 1 and 100", ex.Message);
             }
         }
         [TestMethod]
-        [ExpectedException(typeof(FormatException))]
         public void when_format_and_validation_error_too_throw_format_exception()
         {
             var c = new NameValueCollection();
             c.Add("Plus", "-1.0");
-            var ret = Mapper.MappingFromNameValueCollection<RangeAttributeTestModel>(c);
-            Assert.Fail();
+            try
+            {
+                var ret = Mapper.MappingFromNameValueCollection<RangeAttributeTestModel>(c);
+                Assert.Fail();
+            }
+            catch (AggregateException e)
+            {
+                Assert.AreEqual<int>(1, e.InnerExceptions.Count);
+                var ex = e.InnerExceptions[0];
+                Assert.AreEqual<Type>(typeof(FormatException), ex.GetType());
+            }
         }
 
         [TestMethod]
@@ -154,9 +176,11 @@ namespace Collection2Model.Mapper.Test
                 var ret = Mapper.MappingFromNameValueCollection<RequiredAttributeTeestModel>(c);
                 Assert.Fail();
             }
-            catch (ValidationException e)
+            catch (AggregateException e)
             {
-                StringAssert.Equals("RequiredProp is required!", e.Message);
+                Assert.AreEqual<int>(1, e.InnerExceptions.Count);
+                var ex = e.InnerExceptions[0];
+                StringAssert.Equals("RequiredProp is required!", ex.Message);
             }
         }
         [TestMethod]
@@ -169,9 +193,43 @@ namespace Collection2Model.Mapper.Test
                 var ret = Mapper.MappingFromNameValueCollection<RequiredAttributeTeestModel>(c);
                 Assert.Fail();
             }
-            catch (ValidationException e)
+            catch (AggregateException e)
             {
-                StringAssert.Equals("RequiredProp is required!", e.Message);
+                Assert.AreEqual<int>(1, e.InnerExceptions.Count);
+                var ex = e.InnerExceptions[0];
+                StringAssert.Equals("RequiredProp is required!", ex.Message);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CollectionCantBeNull()
+        {
+            var ret = Mapper.MappingFromNameValueCollection<ThrowMultipleExceptionTestModel>(null);
+        }
+        [TestMethod]
+        public void CatchMultiExceptions()
+        {
+            var c = new NameValueCollection();
+            c.Add("S", "");
+            c.Add("I", "0");
+            try
+            {
+                var ret = Mapper.MappingFromNameValueCollection<ThrowMultipleExceptionTestModel>(c);
+                Assert.Fail();
+            }
+            catch (AggregateException e)
+            {
+                Assert.AreEqual<int>(2, e.InnerExceptions.Count);
+                var exceptions = new List<Exception>(e.InnerExceptions);
+                Assert.IsTrue(exceptions.Any(ex =>
+                {
+                    return typeof(ValidationException) == ex.GetType() && ex.Message == "S is required!";
+                }));
+                Assert.IsTrue(exceptions.Any(ex =>
+                {
+                    return typeof(ValidationException) == ex.GetType() && ex.Message == "I should be 1 or 2.";
+                }));
             }
         }
     }
@@ -211,5 +269,12 @@ namespace Collection2Model.Mapper.Test
         [Required(ErrorMessage = "RequiredProp is required!")]
         public String RequiredProp { get; set; }
         public int NotRequiredProp { get; set; }
+    }
+    public class ThrowMultipleExceptionTestModel
+    {
+        [Required(ErrorMessage = "S is required!")]
+        public string S { get; set; }
+        [Range(1, 2, ErrorMessage = "I should be 1 or 2.")]
+        public int I { get; set; }
     }
 }
