@@ -23,7 +23,7 @@ namespace Collection2Model.Mapper
             {
                 try
                 {
-                    ret = Validate<T>(ret, p, c[p.Name]);
+                    Validate<T>(ret, p, c[p.Name]);
                 }
                 catch (ValidationException e)
                 {
@@ -40,15 +40,14 @@ namespace Collection2Model.Mapper
             return ret;
         }
 
-
-        private static T Validate<T>(T ret, PropertyInfo p, string strVal)
+        private static void Validate<T>(T ret, PropertyInfo p, string strVal)
             where T : class, new()
         {
             // is required?
             RequireValidate(p, strVal);
             if (strVal == null)
             {
-                return ret;
+                return;
             }
 
             // format ok?
@@ -57,9 +56,7 @@ namespace Collection2Model.Mapper
 
             // valid to meta-data?
             ValueValidate(p, val);
-            return ret;
         }
-
 
         private static void RequireValidate(PropertyInfo p, string strVal)
         {

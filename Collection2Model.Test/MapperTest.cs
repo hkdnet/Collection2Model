@@ -232,6 +232,24 @@ namespace Collection2Model.Mapper.Test
                 }));
             }
         }
+        [TestMethod]
+        public void ThrowExceptionWIthDefaultValue()
+        {
+            var c = new NameValueCollection();
+            c.Add("I", "");
+            try
+            {
+                var ret = Mapper.MappingFromNameValueCollection<ThrowMultipleExceptionTestModel>(c);
+                Assert.Fail();
+            }
+            catch (AggregateException e)
+            {
+                Assert.AreEqual<int>(1, e.InnerExceptions.Count);
+                var ex = e.InnerExceptions[0];
+                Assert.AreEqual<Type>(typeof(ValidationException), ex.GetType());
+                StringAssert.Equals("I should be 1 or 2.", ex.Message);
+            }
+        }
     }
     public class TestModel
     {
