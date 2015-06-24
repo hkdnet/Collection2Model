@@ -1,5 +1,8 @@
 # Collection2Model
 
+##Version
+1.0.0
+
 ## 日本語版README
 
 ### 用途
